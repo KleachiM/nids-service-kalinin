@@ -9,6 +9,7 @@ venv/
 # Почему -- см. лабораторную работу №1, раздел «Что Git фиксирует, а что нет».
 artifacts/*
 !artifacts/.gitkeep
+*.pkl
 
 # Данные
 data/*.csv
