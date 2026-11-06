@@ -320,8 +320,17 @@ git push origin --delete feature/readme
 git branch -d feature/readme
 ```
 
-Отчёт публикуется из `lab01/report` через Pull Request в `main`.
-Прямого коммита отчёта в `main` нет. Слияние PR оставлено до проверки работы.
+Отчёт сохранён и отправлен из `lab01/report`:
+
+```bash
+git add README.md labs/lab01/REPORT.md
+git commit -m "Добавить отчёт по лабораторной работе №1"
+git push -u origin lab01/report
+```
+
+Открыт [PR №2](https://github.com/KleachiM/nids-service-kalinin/pull/2)
+из `lab01/report` в `main`. Прямого коммита отчёта в `main` нет.
+Слияние PR оставлено до проверки работы.
 
 ## 3. Ответы на контрольные вопросы
 
@@ -409,4 +418,4 @@ git branch -d feature/readme
 
 - [Репозиторий проекта](https://github.com/KleachiM/nids-service-kalinin).
 - [Первый Pull Request с документацией](https://github.com/KleachiM/nids-service-kalinin/pull/1).
-- Pull Request с отчётом: ссылка будет добавлена после открытия PR.
+- [Pull Request №2 с отчётом](https://github.com/KleachiM/nids-service-kalinin/pull/2).
