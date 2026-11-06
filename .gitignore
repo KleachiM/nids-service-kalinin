@@ -23,3 +23,6 @@ data/*.csv
 
 # Локальные задания
 /tasks/
+
+# Файлы macos
+.DS_Store
