@@ -258,9 +258,17 @@ $ python3 -m pytest
 /Library/Frameworks/Python.framework/Versions/3.14/bin/python3: No module named pytest
 $ python3 -m uvicorn --version
 /Library/Frameworks/Python.framework/Versions/3.14/bin/python3: No module named uvicorn
+$ curl -s localhost:8000/health; echo "код: $?"
+код: 7
 ```
 
-Поэтому `pytest`, запуск HTTP-сервиса и `curl localhost:8000/health` не подтверждены.
+Проверка `curl` завершилась с кодом 7: соединение с сервером не установлено. Поэтому `pytest` и HTTP-сервис не подтверждены.
+
+Без дополнительных пакетов отдельно проверены функции подготовки данных и сохранённая модель: два вызова генератора с одним `seed` дали одинаковые таблицы, порядок признаков совпал с `ALL_FEATURES`, отсутствие обязательного столбца вызвало `ValueError`, а загруженная модель выполнила предсказание. Результат проверки:
+
+```text
+OK: генерация, признаки, проверка колонок и предсказание сохранённой модели
+```
 
 ## Ответы на контрольные вопросы
 
