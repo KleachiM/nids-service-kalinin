@@ -1,0 +1,22 @@
+CREATE TABLE predictions (
+    id bigint GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    created_at timestamptz NOT NULL DEFAULT now(),
+    duration double precision NOT NULL,
+    protocol_type text NOT NULL,
+    service text NOT NULL,
+    flag text NOT NULL,
+    src_bytes bigint NOT NULL,
+    dst_bytes bigint NOT NULL,
+    count integer NOT NULL,
+    srv_count integer NOT NULL,
+    serror_rate double precision NOT NULL,
+    rerror_rate double precision NOT NULL,
+    same_srv_rate double precision NOT NULL,
+    diff_srv_rate double precision NOT NULL,
+    dst_host_count integer NOT NULL,
+    dst_host_srv_count integer NOT NULL,
+    prediction text NOT NULL CHECK (prediction IN ('attack', 'normal')),
+    probability double precision NOT NULL CHECK (probability BETWEEN 0 AND 1),
+    model_version text NOT NULL,
+    response_time_ms double precision NOT NULL CHECK (response_time_ms >= 0)
+);

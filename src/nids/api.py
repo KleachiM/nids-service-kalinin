@@ -13,22 +13,26 @@
 from __future__ import annotations
 
 import json
+import logging
 import os
 from contextlib import asynccontextmanager
 from pathlib import Path
+from time import perf_counter
 from typing import Any
 
 import joblib
 from fastapi import FastAPI, HTTPException
 
+from nids.db import write_prediction
 from nids.features import to_frame
 from nids.schemas import Connection, Health, Prediction
 
-MODEL_DIR = Path(os.getenv("MODEL_DIR", "artifacts"))
+MODEL_DIR = Path(os.getenv("MODEL_DIR") or "artifacts")
 MODEL_FILE = "model.joblib"
 METADATA_FILE = "metadata.json"
 
 state: dict[str, Any] = {"model": None, "metadata": None}
+logger = logging.getLogger(__name__)
 
 
 def load_model(model_dir: Path | None = None) -> bool:
@@ -100,12 +104,18 @@ def predict(connection: Connection) -> Prediction:
             detail="модель не загружена; обучите её: python -m nids.train",
         )
 
+    started = perf_counter()
     frame = to_frame(connection.model_dump())
     probability = float(model.predict_proba(frame)[0][1])
     label = "attack" if probability >= 0.5 else "normal"
 
-    return Prediction(
+    result = Prediction(
         prediction=label,
         probability=round(probability, 4),
         model_version=_model_version(),
     )
+    try:
+        write_prediction(connection, result, (perf_counter() - started) * 1000)
+    except Exception:
+        logger.exception("Не удалось записать предсказание в журнал БД")
+    return result

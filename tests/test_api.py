@@ -6,6 +6,8 @@
 
 from __future__ import annotations
 
+import logging
+
 
 def test_health_reports_loaded_model(client):
     response = client.get("/health")
@@ -56,3 +58,47 @@ def test_predict_rejects_missing_field(client, normal_connection):
     response = client.post("/predict", json=bad)
 
     assert response.status_code == 422
+
+
+def test_predict_journals_input_and_result(client, normal_connection, monkeypatch):
+    from nids import api
+
+    written = []
+    monkeypatch.setattr(api, "write_prediction", lambda *args: written.append(args))
+
+    response = client.post("/predict", json=normal_connection)
+
+    assert response.status_code == 200
+    assert len(written) == 1
+    assert written[0][0].model_dump() == normal_connection
+    assert written[0][1].model_dump() == response.json()
+    assert written[0][2] >= 0
+
+
+def test_predict_survives_database_failure(client, normal_connection, monkeypatch, caplog):
+    from nids import api
+
+    def fail(*_):
+        raise OSError("database unavailable")
+
+    monkeypatch.setattr(api, "write_prediction", fail)
+
+    with caplog.at_level(logging.ERROR):
+        response = client.post("/predict", json=normal_connection)
+
+    assert response.status_code == 200
+    assert "Не удалось записать предсказание" in caplog.text
+    assert "database unavailable" in caplog.text
+
+
+def test_predict_survives_missing_database_url(client, normal_connection, monkeypatch, caplog):
+    from nids import api, db
+
+    monkeypatch.delenv("DATABASE_URL", raising=False)
+    monkeypatch.setattr(api, "write_prediction", db.write_prediction)
+
+    with caplog.at_level(logging.ERROR):
+        response = client.post("/predict", json=normal_connection)
+
+    assert response.status_code == 200
+    assert "DATABASE_URL не задан" in caplog.text

@@ -37,12 +37,13 @@ def trained_model_dir(tmp_path_factory, dataset) -> Path:
 
 
 @pytest.fixture
-def client(trained_model_dir):
+def client(trained_model_dir, monkeypatch):
     """TestClient с уже загруженной моделью."""
     from fastapi.testclient import TestClient
 
     from nids import api
 
+    monkeypatch.setattr(api, "write_prediction", lambda *_: None)
     api.load_model(trained_model_dir)
     with TestClient(api.app) as test_client:
         api.load_model(trained_model_dir)  # lifespan мог сбросить состояние
