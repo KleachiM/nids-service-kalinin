@@ -39,6 +39,26 @@ uvicorn nids.api:app --app-dir src --reload
 curl -s localhost:8000/health
 ```
 
+## Запуск в Docker
+
+```bash
+docker build -t nids-service:v2 .
+docker run --rm -p 8000:8000 nids-service:v2
+```
+
+Образ сам генерирует данные и обучает модель при сборке. После запуска доступны
+`http://localhost:8000/docs`, `/health` и `/predict`; локальный Python не нужен.
+
+Чтобы использовать заранее обученную модель из `artifacts/`, запустите контейнер с
+томом и укажите путь к модели:
+
+```bash
+docker run --rm -p 8000:8000 \
+  -v "$(pwd)/artifacts:/models:ro" \
+  -e MODEL_DIR=/models \
+  nids-service:v2
+```
+
 ## Структура
 
 ```
